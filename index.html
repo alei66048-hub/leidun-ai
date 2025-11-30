@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>雷盾 AI - 全模态内容安全平台</title>
+  <meta name="description" content="基于通义千问大模型的内容合规检测与剧本分析智能体">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Mermaid for Flowchart -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #d32f2f;
+      --primary-dark: #c62828;
+      --dark: #1a1a1a;
+      --light: #ffffff;
+      --gray: #666666;
+      --border-light: #eeeeee;
+      --bg-light: #fafafa;
+      --font-main: 'Noto Sans SC', sans-serif;
+      --section-padding: 80px 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-main);
+      color: var(--dark);
+      background: var(--light);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    /* Header Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: var(--dark);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 5%;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo i { color: var(--primary); }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+    }
+
+    nav a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 180px 5% 100px;
+      text-align: center;
+      background: var(--bg-light);
+    }
+
+    .hero h1 {
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      color: var(--gray);
+      max-width: 800px;
+      margin: 0 auto 40px;
+      font-weight: 400;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 14px 36px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Section Style */
+    section {
+      padding: var(--section-padding);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    section h2 {
+      font-size: 2.2rem;
+      color: var(--dark);
+      margin-bottom: 40px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    section p {
+      font-size: 1.1rem;
+      color: var(--gray);
+      margin-bottom: 20px;
+    }
+
+    /* Features Grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      transition: transform 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-card h3 {
+      font-size: 1.4rem;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    /* Mermaid */
+    .mermaid {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      overflow-x: auto;
+      text-align: center;
+    }
+
+    /* Demo Section */
+    #demo {
+      background: var(--bg-light);
+      text-align: center;
+    }
+
+    #report-output {
+      white-space: pre-wrap;
+      background: #e8f5e8;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: Consolas, monospace;
+      font-size: 14px;
+      height: 200px;
+      overflow-y: auto;
+      margin-top: 20px;
+      text-align: left;
+      border: 1px solid #c8e6c9;
+    }
+
+    input[type="file"] {
+      margin: 15px 0;
+    }
+
+    label {
+      margin-right: 15px;
+      font-size: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+      font-size: 0.95rem;
+      border-top: 1px solid var(--border-light);
+      margin-top: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.4rem; }
+      .hero p { font-size: 1.1rem; }
+      nav ul { display: none; } /* 简化移动端 */
+      section { padding: 60px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="#" class="logo">⚡️ 雷盾 AI</a>
+    <nav>
+      <ul>
+        <li><a href="#features">功能</a></li>
+        <li><a href="#how-it-works">原理</a></li>
+        <li><a href="#contact">联系</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>发布前过一道雷盾，安心上平台</h1>
+    <p>基于通义千问大模型的全模态内容安全智能体，自动识别违规风险，优化剧本结构，守护每一次创作。</p>
+    <a href="#demo" class="btn">立即体验</a>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <h2>核心能力</h2>
+    <div class="features">
+      <div class="feature-card">
+        <h3>全模态输入支持</h3>
+        <p>支持上传文案、音频、视频文件，系统自动提取文字内容并进行分析，真正实现“所传即所检”。</p>
+      </div>
+      <div class="feature-card">
+        <h3>多平台合规检测</h3>
+        <p>覆盖抖音、小红书、B站等主流平台规则库，精准识别政治敏感、低俗色情、虚假宣传等风险标签。</p>
+      </div>
+      <div class="feature-card">
+        <h3>剧本结构智能分析</h3>
+        <p>自动拆解主线/副线剧情、冲突节点、时间线，推荐剧集长度与每集结尾钩子，助力爆款短剧创作。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works">
+    <h2>工作原理</h2>
+    <div class="mermaid">
+      graph TD
+        A[用户上传] --> B{输入类型判断}
+        B -->|文案| C[文本预处理]
+        B -->|音频| D[ASR语音识别]
+        B -->|视频| E[音视频分离+OCR]
+
+        C --> F[任务选择]
+        D --> F
+        E --> F
+
+        F --> G{用户选择任务？}
+        G -->|合规| H[启动合规检测]
+        G -->|剧本| I[启动剧本分析]
+
+        H --> J[RAG检索: 规则库+案例库]
+        J --> K[调用Qwen推理]
+        K --> L[生成合规报告]
+
+        I --> M[剧情结构解析]
+        M --> N[冲突节点识别]
+        N --> O[剧集规划建议]
+
+        L --> P[输出最终报告]
+        O --> P
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section id="demo">
+    <h2>快速体验</h2>
+    <p>上传你的内容，让雷盾 AI 进行扫描分析</p>
+
+    <strong>📤 上传你的内容</strong><br>
+    <input type="file" id="uploadFile" accept=".txt,.mp3,.wav,.mp4,.mov,.pdf,.docx" />
+
+    <div style="margin:20px 0;">
+      <label><input type="checkbox" id="taskCompliance" checked /> ✅ 内容合规检测</label><br>
+      <label><input type="checkbox" id="taskScriptAnalysis" /> 📊 剧本结构分析</label>
+    </div>
+
+    <button id="runAgent" class="btn">⚡️ 开始雷盾扫描</button>
+
+    <div style="margin-top:20px;">
+      <strong>📄 分析结果</strong>
+      <div id="report-output">等待处理...</div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" style="text-align:center;">
+    <h2>联系我们</h2>
+    <p>欢迎合作、投资、技术交流</p>
+    <p><strong>Email：</strong> contact@leidun.tech</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 雷盾 AI · 创始人：雷 | 官网：https://leidun.tech
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+
+    document.getElementById("runAgent").addEventListener("click", () => {
+      const fileInput = document.getElementById("uploadFile");
+      const filename = fileInput.files.length > 0 ? fileInput.files[0].name : "未命名文件";
+      const doCompliance = document.getElementById("taskCompliance").checked;
+      const doScript = document.getElementById("taskScriptAnalysis").checked;
+
+      if (!doCompliance && !doScript) {
+        alert("请至少选择一项任务！");
+        return;
+      }
+
+      const reportOutput = document.getElementById("report-output");
+      reportOutput.textContent = `⚡️ 正在启动雷盾 AI 扫描 "${filename}"...\n\n`;
+
+      setTimeout(() => {
+        let result = "✅ 雷盾 AI 分析完成！\n\n";
+
+        if (doCompliance) {
+          result += "【🛡️ 合规检测】\n";
+          result += "- ⚠️ 风险：低俗暗示语言（抖音中危）\n";
+          result += "- 💡 建议：“欲罢不能” → “令人着迷”更安全\n\n";
+        }
+
+        if (doScript) {
+          result += "【🎬 剧本分析】\n";
+          result += "- 主线：女主复仇逆袭为主线\n";
+          result += "- 推荐集数：24集 × 90秒\n";
+          result += "- 第1集结尾钩子：“三年后见”短信悬念\n\n";
+        }
+
+        result += "📌 提示：真实版本将调用通义千问大模型进行深度分析。";
+        reportOutput.textContent = result;
+      }, 1500);
+    });
+  </script>
+</body>
+</html>

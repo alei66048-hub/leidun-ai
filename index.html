@@ -1,373 +1,986 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>雷盾 AI - 全模态内容安全平台</title>
-  <meta name="description" content="基于通义千问大模型的内容合规检测与剧本分析智能体">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Mermaid for Flowchart -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-
-  <style>
-    :root {
-      --primary: #d32f2f;
-      --primary-dark: #c62828;
-      --dark: #1a1a1a;
-      --light: #ffffff;
-      --gray: #666666;
-      --border-light: #eeeeee;
-      --bg-light: #fafafa;
-      --font-main: 'Noto Sans SC', sans-serif;
-      --section-padding: 80px 20px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雷盾 AI - 创作安全防线，合规检测工具</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome 图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- 配置 Tailwind 自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FFFFFF', // 白底主色
+            secondary: '#06B6D4', // 青色辅助色（保留科技感）
+            accent: '#3B82F6', // 浅蓝强调色（保留）
+            danger: '#EF4444', // 红色警告色（保留）
+            dark: '#F9FAFB', // 浅灰背景色（替代原深色）
+            text: '#1F2937', // 深灰文字色
+            textLight: '#6B7280', // 浅灰文字色
+          },
+          fontFamily: {
+            sans: ['Inter', '思源黑体', 'sans-serif'],
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 4s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        },
+      }
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: var(--font-main);
-      color: var(--dark);
-      background: var(--light);
-      line-height: 1.8;
-      overflow-x: hidden;
-    }
-
-    /* Header Navigation */
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: var(--dark);
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 5%;
-      z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: white;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .logo i { color: var(--primary); }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 30px;
-    }
-
-    nav a {
-      color: #ccc;
-      text-decoration: none;
-      font-size: 1rem;
-      transition: color 0.3s;
-    }
-
-    nav a:hover {
-      color: white;
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 180px 5% 100px;
-      text-align: center;
-      background: var(--bg-light);
-    }
-
-    .hero h1 {
-      font-size: 3.2rem;
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 20px;
-    }
-
-    .hero p {
-      font-size: 1.3rem;
-      color: var(--gray);
-      max-width: 800px;
-      margin: 0 auto 40px;
-      font-weight: 400;
-    }
-
-    .btn {
-      display: inline-block;
-      background: var(--primary);
-      color: white;
-      padding: 14px 36px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background 0.3s;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .btn:hover {
-      background: var(--primary-dark);
-    }
-
-    /* Section Style */
-    section {
-      padding: var(--section-padding);
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    section h2 {
-      font-size: 2.2rem;
-      color: var(--dark);
-      margin-bottom: 40px;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    section p {
-      font-size: 1.1rem;
-      color: var(--gray);
-      margin-bottom: 20px;
-    }
-
-    /* Features Grid */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      margin-top: 40px;
-    }
-
-    .feature-card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      transition: transform 0.3s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .feature-card h3 {
-      font-size: 1.4rem;
-      color: var(--primary);
-      margin-bottom: 15px;
-    }
-
-    /* Mermaid */
-    .mermaid {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      overflow-x: auto;
-      text-align: center;
-    }
-
-    /* Demo Section */
-    #demo {
-      background: var(--bg-light);
-      text-align: center;
-    }
-
-    #report-output {
-      white-space: pre-wrap;
-      background: #e8f5e8;
-      padding: 20px;
-      border-radius: 8px;
-      font-family: Consolas, monospace;
-      font-size: 14px;
-      height: 200px;
-      overflow-y: auto;
-      margin-top: 20px;
-      text-align: left;
-      border: 1px solid #c8e6c9;
-    }
-
-    input[type="file"] {
-      margin: 15px 0;
-    }
-
-    label {
-      margin-right: 15px;
-      font-size: 1rem;
-    }
-
-    footer {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--gray);
-      font-size: 0.95rem;
-      border-top: 1px solid var(--border-light);
-      margin-top: 60px;
-    }
-
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 2.4rem; }
-      .hero p { font-size: 1.1rem; }
-      nav ul { display: none; } /* 简化移动端 */
-      section { padding: 60px 20px; }
+  </script>
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .text-gradient {
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .bg-glass {
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+      .shadow-tech {
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+      }
+      .hover-glow:hover {
+        box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+      }
     }
   </style>
 </head>
-<body>
+<body class="bg-primary text-text font-sans">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-glass border-b border-gray-200">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <a href="#" class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+            <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+          </div>
+          <span class="text-xl font-bold text-text">雷盾 <span class="text-secondary">AI</span></span>
+        </a>
 
-  <!-- Header -->
-  <header>
-    <a href="#" class="logo">⚡️ 雷盾 AI</a>
-    <nav>
-      <ul>
-        <li><a href="#features">功能</a></li>
-        <li><a href="#how-it-works">原理</a></li>
-        <li><a href="#contact">联系</a></li>
-      </ul>
-    </nav>
+        <!-- 桌面端导航 -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="#home" class="text-textLight hover:text-secondary transition-colors">首页</a>
+          <a href="#product" class="text-textLight hover:text-secondary transition-colors">产品服务</a>
+          <a href="#about" class="text-textLight hover:text-secondary transition-colors">关于我们</a>
+          <a href="#contact" class="text-textLight hover:text-secondary transition-colors">联系我们</a>
+          <a href="#pricing" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-all hover-glow">
+            立即购买
+          </a>
+        </nav>
+
+        <!-- 移动端菜单按钮 -->
+        <button id="menuBtn" class="md:hidden text-textLight hover:text-text">
+          <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 移动端导航菜单 -->
+    <div id="mobileMenu" class="md:hidden hidden bg-white border-b border-gray-200">
+      <div class="container mx-auto px-4 py-3 space-y-3">
+        <a href="#home" class="block text-textLight hover:text-secondary py-2">首页</a>
+        <a href="#product" class="block text-textLight hover:text-secondary py-2">产品服务</a>
+        <a href="#about" class="block text-textLight hover:text-secondary py-2">关于我们</a>
+        <a href="#contact" class="block text-textLight hover:text-secondary py-2">联系我们</a>
+        <a href="#pricing" class="block bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg text-center hover-glow">
+          立即购买
+        </a>
+      </div>
+    </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <h1>发布前过一道雷盾，安心上平台</h1>
-    <p>基于通义千问大模型的全模态内容安全智能体，自动识别违规风险，优化剧本结构，守护每一次创作。</p>
-    <a href="#demo" class="btn">立即体验</a>
-  </section>
-
-  <!-- Features -->
-  <section id="features">
-    <h2>核心能力</h2>
-    <div class="features">
-      <div class="feature-card">
-        <h3>全模态输入支持</h3>
-        <p>支持上传文案、音频、视频文件，系统自动提取文字内容并进行分析，真正实现“所传即所检”。</p>
+  <main>
+    <!-- 首页横幅 -->
+    <section id="home" class="pt-32 pb-20 md:pt-40 md:pb-28">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center">
+          <div class="md:w-1/2 mb-10 md:mb-0">
+            <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight mb-6 text-text">
+              创作前的<span class="bg-gradient-to-r from-secondary to-accent text-gradient">安全防线</span>
+              <br>爆款后的合规保障
+            </h1>
+            <p class="text-textLight text-lg mb-8 max-w-lg">
+              基于国内主流大模型，支持文案/音视频/图片全格式检测，提供多平台合规分析+剧本结构化拆解，让创作更安全、更高效。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <a href="#detect" class="bg-secondary hover:bg-secondary/90 text-white px-8 py-3 rounded-lg text-lg font-medium transition-all hover-glow text-center">
+                立即检测 <i class="fa-solid fa-arrow-right ml-2"></i>
+              </a>
+              <a href="#product" class="bg-transparent border border-gray-300 hover:border-secondary text-textLight px-8 py-3 rounded-lg text-lg font-medium transition-all hover:text-secondary text-center">
+                了解更多
+              </a>
+            </div>
+            <div class="mt-10 flex items-center space-x-6">
+              <div class="flex -space-x-2">
+                <img src="https://picsum.photos/id/1001/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-primary">
+                <img src="https://picsum.photos/id/1002/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-primary">
+                <img src="https://picsum.photos/id/1003/40/40" alt="用户头像" class="w-10 h-10 rounded-full border-2 border-primary">
+              </div>
+              <div>
+                <p class="text-text"><span class="text-secondary font-bold">5000+</span> 创作者正在使用</p>
+                <p class="text-textLight text-sm">基于500+真实违规案例库，覆盖5大主流平台</p>
+              </div>
+            </div>
+          </div>
+          <div class="md:w-1/2 relative">
+            <div class="w-full h-80 md:h-96 bg-dark rounded-2xl shadow-tech p-6 flex items-center justify-center animate-float">
+              <div class="grid grid-cols-2 gap-6 w-full">
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <i class="fa-solid fa-file-lines text-secondary text-3xl mb-3"></i>
+                  <h3 class="font-semibold text-lg mb-1 text-text">多平台合规检测</h3>
+                  <p class="text-textLight text-sm">风险标签+规则检索+案例匹配</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <i class="fa-solid fa-waveform-lines text-secondary text-3xl mb-3"></i>
+                  <h3 class="font-semibold text-lg mb-1 text-text">全格式转写识别</h3>
+                  <p class="text-textLight text-sm">文案/音频/视频/图片 全支持</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <i class="fa-solid fa-script text-secondary text-3xl mb-3"></i>
+                  <h3 class="font-semibold text-lg mb-1 text-text">剧本结构化分析</h3>
+                  <p class="text-textLight text-sm">主线/副线/冲突/集数建议</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <i class="fa-solid fa-file-pdf text-secondary text-3xl mb-3"></i>
+                  <h3 class="font-semibold text-lg mb-1 text-text">专属合规报告</h3>
+                  <p class="text-textLight text-sm">风险说明+触发依据+修改建议</p>
+                </div>
+              </div>
+            </div>
+            <!-- 装饰元素 -->
+            <div class="absolute -top-6 -right-6 w-24 h-24 bg-secondary/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-accent/10 rounded-full blur-2xl"></div>
+          </div>
+        </div>
       </div>
-      <div class="feature-card">
-        <h3>多平台合规检测</h3>
-        <p>覆盖抖音、小红书、B站等主流平台规则库，精准识别政治敏感、低俗色情、虚假宣传等风险标签。</p>
+    </section>
+
+    <!-- 核心服务 -->
+    <section class="py-16 bg-dark">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-text">核心服务 · 全场景覆盖</h2>
+          <p class="text-textLight max-w-2xl mx-auto">基于国内主流大模型，结合结构化平台规则+500+真实违规案例，提供合规检测与剧本优化双核心服务</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- 服务卡片1：合规检测 -->
+          <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-secondary transition-all hover-glow shadow-sm">
+            <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
+              <i class="fa-solid fa-shield-halved text-secondary text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-text">多平台合规检测</h3>
+            <p class="text-textLight mb-4">支持文案、音频、视频、图片全格式输入，自动识别风险标签（Main+Subtags），关联平台规则与违规案例库，精准输出合规分析报告。</p>
+            <ul class="space-y-2 mb-6">
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 覆盖抖音/小红书/B站/快手/视频号
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> Main+Subtags 双层风险标签
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 规则检索+500+案例相似匹配
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 分平台风险说明+修改建议
+              </li>
+            </ul>
+            <a href="#detect" class="text-secondary hover:text-secondary/80 font-medium flex items-center">
+              立即检测 <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+
+          <!-- 服务卡片2：转写识别 -->
+          <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-secondary transition-all hover-glow shadow-sm">
+            <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
+              <i class="fa-solid fa-microphone-lines text-secondary text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-text">全格式转写识别</h3>
+            <p class="text-textLight mb-4">音频转文字（ASR）+ 画面文字提取（OCR），支持多格式导出，为合规检测与剧本分析提供精准文本基础，准确率99%+。</p>
+            <ul class="space-y-2 mb-6">
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 音频10分钟快速转写（MP3/WAV）
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 视频/图片文字精准提取（MP4/PNG）
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 支持模糊文字修复与校对
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> TXT/Word 可编辑格式导出
+              </li>
+            </ul>
+            <a href="#detect" class="text-secondary hover:text-secondary/80 font-medium flex items-center">
+              立即转写 <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+
+          <!-- 服务卡片3：剧本结构分析 -->
+          <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-secondary transition-all hover-glow shadow-sm">
+            <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
+              <i class="fa-solid fa-pen-nib text-secondary text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3 text-text">剧本结构化分析</h3>
+            <p class="text-textLight mb-4">拆解主线/副线剧情、梳理时间线、定位冲突节点，自动建议合适集数，提供每集钩子设计与结构优化方案，提升完播率。</p>
+            <ul class="space-y-2 mb-6">
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 主线/副线剧情结构化拆解
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 时间线梳理+冲突节点标注
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 智能推荐剧集长度与集数
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 每集钩子设计+结构优化建议
+              </li>
+            </ul>
+            <a href="#detect" class="text-secondary hover:text-secondary/80 font-medium flex items-center">
+              立即分析 <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="feature-card">
-        <h3>剧本结构智能分析</h3>
-        <p>自动拆解主线/副线剧情、冲突节点、时间线，推荐剧集长度与每集结尾钩子，助力爆款短剧创作。</p>
+    </section>
+
+    <!-- 检测工具（核心交互区） -->
+    <section id="detect" class="py-20">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-text">一键检测 · 极速出结果</h2>
+          <p class="text-textLight max-w-2xl mx-auto">支持文案、音频、视频、图片多格式上传，4步完成合规检测+剧本分析，免费体验1次</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-tech p-8 border border-gray-200">
+          <!-- 检测流程步骤 -->
+          <div class="flex justify-between mb-10 relative">
+            <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -translate-y-1/2 z-0"></div>
+            <div class="absolute top-1/2 left-0 w-0 h-1 bg-secondary -translate-y-1/2 z-10 transition-all duration-1000" id="progressBar"></div>
+            
+            <div class="flex flex-col items-center z-20">
+              <div class="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center mb-2 step-active">
+                <i class="fa-solid fa-upload"></i>
+              </div>
+              <span class="text-sm font-medium text-text">上传文件</span>
+            </div>
+            <div class="flex flex-col items-center z-20">
+              <div class="w-10 h-10 rounded-full bg-gray-200 text-textLight flex items-center justify-center mb-2 step" id="step2">
+                <i class="fa-solid fa-list-check"></i>
+              </div>
+              <span class="text-sm font-medium text-text">选择服务</span>
+            </div>
+            <div class="flex flex-col items-center z-20">
+              <div class="w-10 h-10 rounded-full bg-gray-200 text-textLight flex items-center justify-center mb-2 step" id="step3">
+                <i class="fa-solid fa-gears"></i>
+              </div>
+              <span class="text-sm font-medium text-text">启动检测</span>
+            </div>
+            <div class="flex flex-col items-center z-20">
+              <div class="w-10 h-10 rounded-full bg-gray-200 text-textLight flex items-center justify-center mb-2 step" id="step4">
+                <i class="fa-solid fa-file-pdf"></i>
+              </div>
+              <span class="text-sm font-medium text-text">下载报告</span>
+            </div>
+          </div>
+
+          <!-- 步骤1：上传文件 -->
+          <div id="uploadStep" class="step-content">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-secondary transition-colors cursor-pointer" id="dropArea">
+              <input type="file" id="fileInput" class="hidden" accept=".txt,.docx,.pdf,.mp3,.wav,.mp4,.avi,.png,.jpg">
+              <i class="fa-solid fa-cloud-upload text-4xl text-gray-400 mb-4"></i>
+              <h3 class="text-xl font-semibold mb-2 text-text">拖拽文件至此处上传</h3>
+              <p class="text-textLight mb-6">支持 TXT/Word/PDF/MP3/WAV/MP4/AVI/PNG/JPG 格式，单文件不超过200MB</p>
+              <button id="selectFileBtn" class="bg-dark border border-gray-300 hover:border-secondary text-textLight px-6 py-2 rounded-lg transition-all">
+                选择文件上传
+              </button>
+            </div>
+            <div id="filePreview" class="hidden mt-6 p-4 bg-dark rounded-xl border border-gray-200">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <i class="fa-solid fa-file-text text-secondary mr-3 text-xl"></i>
+                  <div>
+                    <p id="fileName" class="font-medium text-text"></p>
+                    <p id="fileSize" class="text-textLight text-sm"></p>
+                  </div>
+                </div>
+                <button id="removeFileBtn" class="text-gray-400 hover:text-danger transition-colors">
+                  <i class="fa-solid fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mt-8 text-right">
+              <button id="nextToServiceBtn" class="bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg transition-all hover-glow disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                下一步 <i class="fa-solid fa-arrow-right ml-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 步骤2：选择服务 -->
+          <div id="serviceStep" class="step-content hidden">
+            <h3 class="text-xl font-semibold mb-6 text-text">选择需要的服务（可多选）</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <label class="flex items-center p-4 bg-dark rounded-lg border border-gray-200 hover:border-secondary transition-all cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-secondary rounded" checked>
+                <span class="ml-3 font-medium text-text">多平台合规检测（Main+Subtags风险标签）</span>
+              </label>
+              <label class="flex items-center p-4 bg-dark rounded-lg border border-gray-200 hover:border-secondary transition-all cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-secondary rounded" checked>
+                <span class="ml-3 font-medium text-text">ASR/OCR转写识别（音频/视频/图片→文本）</span>
+              </label>
+              <label class="flex items-center p-4 bg-dark rounded-lg border border-gray-200 hover:border-secondary transition-all cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-secondary rounded" checked>
+                <span class="ml-3 font-medium text-text">剧本结构化分析（主线/副线/冲突/集数建议）</span>
+              </label>
+              <label class="flex items-center p-4 bg-dark rounded-lg border border-gray-200 hover:border-secondary transition-all cursor-pointer">
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-secondary rounded">
+                <span class="ml-3 font-medium text-text">广电下架短剧风险对比（规避同类问题）</span>
+              </label>
+            </div>
+            <div class="flex justify-between">
+              <button id="backToUploadBtn" class="bg-transparent border border-gray-300 text-textLight px-6 py-3 rounded-lg transition-all hover:border-secondary hover:text-secondary">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 上一步
+              </button>
+              <button id="nextToDetectBtn" class="bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg transition-all hover-glow">
+                启动检测 <i class="fa-solid fa-arrow-right ml-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 步骤3：启动检测 -->
+          <div id="detectStep" class="step-content hidden">
+            <div class="text-center py-8">
+              <div class="inline-block w-20 h-20 border-4 border-secondary border-t-gray-300 rounded-full animate-spin mb-6"></div>
+              <h3 class="text-xl font-semibold mb-2 text-text">检测中，请稍候...</h3>
+              <p class="text-textLight mb-6">正在进行风险标签识别、平台规则检索、案例匹配与剧本拆解，预计需要 30 秒 - 3 分钟</p>
+              <div class="w-full bg-gray-200 rounded-full h-2.5 max-w-md mx-auto">
+                <div class="bg-secondary h-2.5 rounded-full transition-all duration-3000" id="detectProgress" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="flex justify-between">
+              <button id="backToServiceBtn" class="bg-transparent border border-gray-300 text-textLight px-6 py-3 rounded-lg transition-all hover:border-secondary hover:text-secondary">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 上一步
+              </button>
+              <button id="nextToReportBtn" class="bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg transition-all hover-glow disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                查看报告 <i class="fa-solid fa-arrow-right ml-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 步骤4：下载报告 -->
+          <div id="reportStep" class="step-content hidden">
+            <div class="bg-dark rounded-xl p-6 border border-gray-200 mb-8">
+              <div class="flex items-center mb-4">
+                <i class="fa-solid fa-circle-check text-green-500 text-2xl mr-3"></i>
+                <h3 class="text-xl font-semibold text-text">检测完成！</h3>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="p-3 bg-white rounded-lg border border-gray-200">
+                  <p class="text-textLight text-sm mb-1">文件名称</p>
+                  <p id="reportFileName" class="font-medium text-text">sample_script.txt</p>
+                </div>
+                <div class="p-3 bg-white rounded-lg border border-gray-200">
+                  <p class="text-textLight text-sm mb-1">检测类型</p>
+                  <p id="reportServiceType" class="font-medium text-text">合规检测+剧本分析+转写</p>
+                </div>
+                <div class="p-3 bg-white rounded-lg border border-gray-200">
+                  <p class="text-textLight text-sm mb-1">检测结果</p>
+                  <p class="font-medium text-green-500">未发现高危违规点</p>
+                </div>
+              </div>
+              <div class="border-t border-gray-200 pt-4">
+                <h4 class="font-semibold text-text mb-2">报告预览</h4>
+                <div class="bg-white rounded-lg p-4 max-h-40 overflow-y-auto text-sm text-text space-y-3">
+                  <p><span class="text-secondary font-medium">合规检测结论：</span>文件内容符合抖音、小红书、B站、快手、视频号平台社区规范，识别2个低风险标签（Subtag：过度营销→Main：广告违规），无高危违规点。</p>
+                  <p><span class="text-secondary font-medium">风险说明（抖音平台）：</span>第5段"全网最低价"表述触发《抖音广告违规管理规则》第3.2条，相似案例库ID：CASE-20240512-032（已标注触发依据）。</p>
+                  <p><span class="text-secondary font-medium">修改建议：</span>将"全网最低价"替换为"限时优惠价"，避免绝对化营销表述；补充产品具体优惠期限，增强合规性。</p>
+                  <p><span class="text-secondary font-medium">剧本分析结果：</span>主线剧情清晰，副线支撑不足；冲突节点3个（分布较均匀）；建议集数：12集（每集3分钟）；第1集钩子建议：开篇展示核心矛盾（如产品痛点+解决方案对比）。</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between">
+              <button id="backToDetectBtn" class="bg-transparent border border-gray-300 text-textLight px-6 py-3 rounded-lg transition-all hover:border-secondary hover:text-secondary">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 上一步
+              </button>
+              <div class="flex gap-4">
+                <button class="bg-transparent border border-gray-300 text-textLight px-6 py-3 rounded-lg transition-all hover:border-secondary hover:text-secondary">
+                  <i class="fa-solid fa-share-nodes mr-2"></i> 分享报告
+                </button>
+                <button class="bg-accent hover:bg-accent/90 text-white px-6 py-3 rounded-lg transition-all hover-glow">
+                  <i class="fa-solid fa-download mr-2"></i> 下载报告
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- How It Works -->
-  <section id="how-it-works">
-    <h2>工作原理</h2>
-    <div class="mermaid">
-      graph TD
-        A[用户上传] --> B{输入类型判断}
-        B -->|文案| C[文本预处理]
-        B -->|音频| D[ASR语音识别]
-        B -->|视频| E[音视频分离+OCR]
+    <!-- 产品服务详情 -->
+    <section id="product" class="py-20 bg-dark">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-text">产品详情 · 技术赋能创作</h2>
+          <p class="text-textLight max-w-2xl mx-auto">基于国内主流大模型，结合结构化平台规则库、500+真实违规案例库、广电下架短剧数据，提供精准合规检测与剧本优化</p>
+        </div>
 
-        C --> F[任务选择]
-        D --> F
-        E --> F
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h3 class="text-2xl font-bold mb-6 flex items-center text-text">
+              <span class="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center mr-3">
+                <i class="fa-solid fa-shield-halved text-secondary"></i>
+              </span>
+              多平台合规检测：精准识别风险，提供可落地建议
+            </h3>
+            <div class="space-y-4 mb-8">
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">全平台规则覆盖</h4>
+                  <p class="text-textLight">已结构化整理抖音、小红书、B站、快手、视频号五大平台审核规则文档，建立动态更新的规则知识库，确保检测标准与平台同步。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">双层风险标签体系</h4>
+                  <p class="text-textLight">自动识别内容中的 Main（主标签：如政治敏感、广告违规）和 Subtags（子标签：如过度营销、绝对化用语），风险分类更精准。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">规则+案例双库支撑</h4>
+                  <p class="text-textLight">不仅关联平台规则给出触发依据，还通过500+真实违规案例库进行相似匹配，让风险判断更具参考性，修改建议更落地。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">分平台专属报告</h4>
+                  <p class="text-textLight">针对不同平台的规则差异，分别输出"风险说明+触发依据+修改建议"，一份内容可适配多平台发布，无需重复检测。</p>
+                </div>
+              </div>
+            </div>
 
-        F --> G{用户选择任务？}
-        G -->|合规| H[启动合规检测]
-        G -->|剧本| I[启动剧本分析]
+            <h3 class="text-2xl font-bold mb-6 flex items-center text-text">
+              <span class="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center mr-3">
+                <i class="fa-solid fa-microphone-lines text-secondary"></i>
+              </span>
+              全格式转写识别：为分析提供精准文本基础
+            </h3>
+            <div class="space-y-4">
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">多模态输入支持</h4>
+                  <p class="text-textLight">支持文案（TXT/Word/PDF）、音频（MP3/WAV）、视频（MP4/AVI）、图片（PNG/JPG）全格式输入，自动转写为结构化文本，适配后续检测与分析。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">高准确率转写</h4>
+                  <p class="text-textLight">基于国内主流大模型的ASR/OCR技术，音频转写准确率99%+，图片文字识别支持模糊修复、多语言识别，减少人工校对成本。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">可编辑格式导出</h4>
+                  <p class="text-textLight">转写结果支持TXT、Word格式导出，可直接用于文案二次编辑、字幕制作，同时为剧本结构化分析提供完整文本素材。</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        H --> J[RAG检索: 规则库+案例库]
-        J --> K[调用Qwen推理]
-        K --> L[生成合规报告]
+          <div>
+            <h3 class="text-2xl font-bold mb-6 flex items-center text-text">
+              <span class="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center mr-3">
+                <i class="fa-solid fa-script text-secondary"></i>
+              </span>
+              剧本结构化分析：打造爆款短剧/短视频
+            </h3>
+            <div class="space-y-4 mb-8">
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">剧情脉络拆解</h4>
+                  <p class="text-textLight">自动识别剧本的主线剧情（核心故事线）与副线剧情（辅助支撑线），梳理时间线逻辑，标注关键情节节点，让剧情结构一目了然。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">冲突节点定位</h4>
+                  <p class="text-textLight">精准识别剧本中的核心冲突、次要冲突，分析冲突密度与分布合理性，避免剧情平淡，提升用户观看兴趣。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">剧集长度建议</h4>
+                  <p class="text-textLight">根据剧本总时长、剧情复杂度、冲突节点数量，智能推荐合适的集数与单集时长（如12集×3分钟）；用户未指定时，给出最优适配方案。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">每集钩子与结构设计</h4>
+                  <p class="text-textLight">为每集剧本提供钩子设计建议（如开篇冲突、结尾悬念），优化单集结构（铺垫-发展-高潮-收尾），提升用户完播率与追更意愿。</p>
+                </div>
+              </div>
+            </div>
 
-        I --> M[剧情结构解析]
-        M --> N[冲突节点识别]
-        N --> O[剧集规划建议]
+            <h3 class="text-2xl font-bold mb-6 flex items-center text-text">
+              <span class="w-8 h-8 bg-secondary/10 rounded-full flex items-center justify-center mr-3">
+                <i class="fa-solid fa-brain text-secondary"></i>
+              </span>
+              核心资源支撑：让检测更精准、分析更专业
+            </h3>
+            <div class="space-y-4">
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">结构化平台规则库</h4>
+                  <p class="text-textLight">覆盖抖音、小红书、B站、快手、视频号五大平台，将平台审核规则拆解为结构化标签体系，支持精准检索与匹配，确保合规检测的准确性。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">2000+真实违规案例库</h4>
+                  <p class="text-textLight">包含原始违规内容、平台判定结果、风险标签、修改方案，通过相似案例匹配，让用户清晰了解违规原因，修改建议更具参考性。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">广电下架短剧数据库</h4>
+                  <p class="text-textLight">收录广电总局下架短剧的名称、剧情介绍、核心风险点，可对比分析用户剧本与下架案例的相似度，提前规避同类合规风险。</p>
+                </div>
+              </div>
+              <div class="flex">
+                <i class="fa-solid fa-check-circle text-secondary mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-semibold text-text">国内主流大模型赋能</h4>
+                  <p class="text-textLight">基于国内领先大模型的自然语言处理、计算机视觉技术，确保风险识别的精准度、剧本分析的深度，适配中文创作场景的语言习惯与文化背景。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        L --> P[输出最终报告]
-        O --> P
-    </div>
-  </section>
+    <!-- 价格套餐 -->
+    <section id="pricing" class="py-20">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-text">灵活套餐 · 满足不同需求</h2>
+          <p class="text-textLight max-w-2xl mx-auto">个人博主、工作室、MCN机构均有适配方案，基于500+违规案例与5大平台规则，免费体验后再选择，无隐形消费</p>
+        </div>
 
-  <!-- Demo -->
-  <section id="demo">
-    <h2>快速体验</h2>
-    <p>上传你的内容，让雷盾 AI 进行扫描分析</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <!-- 免费套餐 -->
+          <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-secondary transition-all hover-glow shadow-sm">
+            <h3 class="text-xl font-bold mb-2 text-text">免费体验</h3>
+            <p class="text-textLight mb-6">适合首次尝试的创作者</p>
+            <div class="mb-6">
+              <span class="text-4xl font-bold text-text">¥0</span>
+              <span class="text-textLight">/ 永久</span>
+            </div>
+            <ul class="space-y-3 mb-8">
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 每天1次免费检测
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 基础合规检测（Main标签）
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 单平台规则匹配（默认抖音）
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 在线预览简化版报告
+              </li>
+              <li class="flex items-center text-textLight line-through">
+                <i class="fa-solid fa-x mr-2"></i> 剧本结构化分析
+              </li>
+              <li class="flex items-center text-textLight line-through">
+                <i class="fa-solid fa-x mr-2"></i> 广电下架短剧对比
+              </li>
+            </ul>
+            <a href="#detect" class="block w-full bg-transparent border border-secondary text-secondary hover:bg-secondary hover:text-white px-6 py-3 rounded-lg text-center transition-all">
+              立即体验
+            </a>
+          </div>
 
-    <strong>📤 上传你的内容</strong><br>
-    <input type="file" id="uploadFile" accept=".txt,.mp3,.wav,.mp4,.mov,.pdf,.docx" />
+          <!-- 月度会员 -->
+          <div class="bg-white rounded-xl p-6 border-2 border-secondary shadow-tech transform md:scale-105 hover-glow relative z-10">
+            <div class="absolute top-0 right-0 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+              最受欢迎
+            </div>
+            <h3 class="text-xl font-bold mb-2 text-text">月度会员</h3>
+            <p class="text-textLight mb-6">适合高频创作的个人博主</p>
+            <div class="mb-6">
+              <span class="text-4xl font-bold text-text">¥99</span>
+              <span class="text-textLight">/ 月</span>
+            </div>
+            <ul class="space-y-3 mb-8">
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 文案检测10万字
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 音频检测30分钟
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 视频/图片检测10次
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 全平台合规检测（Main+Subtags）
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 剧本分析3次/月
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 完整报告下载+案例匹配
+              </li>
+            </ul>
+            <a href="#detect" class="block w-full bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg text-center transition-all hover-glow">
+              立即购买
+            </a>
+          </div>
 
-    <div style="margin:20px 0;">
-      <label><input type="checkbox" id="taskCompliance" checked /> ✅ 内容合规检测</label><br>
-      <label><input type="checkbox" id="taskScriptAnalysis" /> 📊 剧本结构分析</label>
-    </div>
+          <!-- 年度会员 -->
+          <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-secondary transition-all hover-glow shadow-sm">
+            <h3 class="text-xl font-bold mb-2 text-text">年度会员</h3>
+            <p class="text-textLight mb-6">适合工作室/MCN机构</p>
+            <div class="mb-6">
+              <span class="text-4xl font-bold text-text">¥899</span>
+              <span class="text-textLight">/ 年</span>
+            </div>
+            <ul class="space-y-3 mb-8">
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 文案检测100万字
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 音频检测360分钟
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 视频/图片检测120次
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 剧本分析30次/年
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 广电下架短剧对比功能
+              </li>
+              <li class="flex items-center text-text">
+                <i class="fa-solid fa-check text-secondary mr-2"></i> 专属合规顾问1次咨询
+              </li>
+            </ul>
+            <a href="#detect" class="block w-full bg-transparent border border-secondary text-secondary hover:bg-secondary hover:text-white px-6 py-3 rounded-lg text-center transition-all">
+              立即购买
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <button id="runAgent" class="btn">⚡️ 开始雷盾扫描</button>
+    <!-- 关于我们 -->
+    <section id="about" class="py-20 bg-dark">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-text">关于我们 · 技术驱动创新</h2>
+          <p class="text-textLight max-w-2xl mx-auto">专注于内容创作领域的智能工具研发，基于国内主流大模型与核心资源库，用AI技术为创作者保驾护航</p>
+        </div>
 
-    <div style="margin-top:20px;">
-      <strong>📄 分析结果</strong>
-      <div id="report-output">等待处理...</div>
-    </div>
-  </section>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h3 class="text-2xl font-bold mb-6 text-text">核心技术与资源</h3>
+            <p class="text-textLight mb-8">
+              雷盾AI团队深耕自然语言处理、计算机视觉、语音识别领域5年+，基于国内主流大模型，构建了三大核心资源支撑体系：
+              1）结构化平台规则库（覆盖5大主流平台）；2）2000+真实违规案例库（带标签、含修改方案）；3）广电下架短剧数据库（名称、剧情、风险点）。
+              结合自主研发的RAG规则检索技术和神经网络算法，打造全模态智能检测与分析系统，确保产品的精准性与专业性。
+            </p>
 
-  <!-- Contact -->
-  <section id="contact" style="text-align:center;">
-    <h2>联系我们</h2>
-    <p>欢迎合作、投资、技术交流</p>
-    <p><strong>Email：</strong> contact@leidun.tech</p>
-  </section>
+            <h3 class="text-2xl font-bold mb-6 text-text">发展理念</h3>
+            <p class="text-textLight mb-8">
+              我们深知创作者在内容生产过程中面临的合规风险和效率痛点，因此始终坚持“技术赋能创作”的核心理念，致力于打造简单、高效、可靠的智能工具，
+              让创作者无需担心违规问题，专注于内容本身，释放创作潜力，实现更大的商业价值。
+            </p>
 
-  <!-- Footer -->
-  <footer>
-    © 2025 雷盾 AI · 创始人：雷 | 官网：https://leidun.tech
-  </footer>
+            <h3 class="text-2xl font-bold mb-6 text-text">团队介绍</h3>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-white border border-gray-200 mx-auto mb-3 overflow-hidden">
+                  <img src="https://picsum.photos/id/1005/100/100" alt="团队成员" class="w-full h-full object-cover">
+                </div>
+                <h4 class="font-semibold text-text">张明</h4>
+                <p class="text-textLight text-sm">AI算法负责人</p>
+              </div>
+              <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-white border border-gray-200 mx-auto mb-3 overflow-hidden">
+                  <img src="https://picsum.photos/id/1006/100/100" alt="团队成员" class="w-full h-full object-cover">
+                </div>
+                <h4 class="font-semibold text-text">李婷</h4>
+                <p class="text-textLight text-sm">内容合规专家</p>
+              </div>
+              <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-white border border-gray-200 mx-auto mb-3 overflow-hidden">
+                  <img src="https://picsum.photos/id/1010/100/100" alt="团队成员" class="w-full h-full object-cover">
+                </div>
+                <h4 class="font-semibold text-text">王强</h4>
+                <p class="text-textLight text-sm">产品经理</p>
+              </div>
+            </div>
+          </div>
 
-  <!-- Scripts -->
-  <script>
-    mermaid.initialize({ startOnLoad: true });
+          <div class="relative">
+            <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-tech">
+              <h3 class="text-2xl font-bold mb-6 text-text">用户反馈</h3>
+              <div class="space-y-6">
+                <div class="border-l-4 border-secondary pl-4 py-2">
+                  <p class="text-text mb-3">
+                    "作为短剧编剧，以前写完剧本要逐字逐句查违规，还要担心剧情节奏问题。用了雷盾的合规检测+剧本分析，不仅通过500+案例匹配精准规避了违规风险，还优化了冲突节点和每集钩子，完播率提升了30%！"
+                  </p>
+                  <div class="flex items-center">
+                    <img src="https://picsum.photos/id/1027/40/40" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
+                    <div>
+                      <h4 class="font-semibold text-text">陈编剧</h4>
+                      <p class="text-textLight text-sm">某短剧工作室创始人</p>
+                    </div>
+                  </div>
+                </div>
 
-    document.getElementById("runAgent").addEventListener("click", () => {
-      const fileInput = document.getElementById("uploadFile");
-      const filename = fileInput.files.length > 0 ? fileInput.files[0].name : "未命名文件";
-      const doCompliance = document.getElementById("taskCompliance").checked;
-      const doScript = document.getElementById("taskScriptAnalysis").checked;
+                <div class="border-l-4 border-secondary pl-4 py-2">
+                  <p class="text-text mb-3">
+                    "我是短视频博主，经常需要把口播视频转写为文案再分发多平台。雷盾的OCR转写准确率超高，还能针对抖音、小红书、B站分别做合规检测，给出具体修改建议，现在发视频再也不用提心吊胆被限流！"
+                  </p>
+                  <div class="flex items-center">
+                    <img src="https://picsum.photos/id/1062/40/40" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
+                    <div>
+                      <h4 class="font-semibold text-text">林主播</h4>
+                      <p class="text-textLight text-sm">百万粉丝生活类博主</p>
+                    </div>
+                  </div>
+                </div>
 
-      if (!doCompliance && !doScript) {
-        alert("请至少选择一项任务！");
-        return;
-      }
+                <div class="border-l-4 border-secondary pl-4 py-2">
+                  <p class="text-text mb-3">
+                    "我们MCN机构签约了20多个短剧创作者，以前合规审核要花大量人力。用了雷盾的年度会员，支持批量检测，还能对比广电下架短剧案例，提前规避同类风险，审核效率提升了80%，合规通过率100%！"
+                  </p>
+                  <div class="flex items-center">
+                    <img src="https://picsum.photos/id/1066/40/40" alt="用户头像" class="w-10 h-10 rounded-full mr-3">
+                    <div>
+                      <h4 class="font-semibold text-text">张总监</h4>
+                      <p class="text-textLight text-sm">某MCN机构内容负责人</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 装饰元素 -->
+            <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-secondary/10 rounded-full blur-2xl"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      const reportOutput = document.getElementById("report-output");
-      reportOutput.textContent = `⚡️ 正在启动雷盾 AI 扫描 "${filename}"...\n\n`;
+    <!-- 联系我们 -->
+    <section id="contact" class="py-20">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4 text-text">联系我们 · 携手共赢</h2>
+          <p class="text-textLight max-w-2xl mx-auto">如果您有合作需求、产品咨询或技术问题，欢迎随时联系我们，我们将24小时内回复</p>
+        </div>
 
-      setTimeout(() => {
-        let result = "✅ 雷盾 AI 分析完成！\n\n";
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          <div class="bg-white rounded-xl p-8 border border-gray-200">
+            <h3 class="text-2xl font-bold mb-6 text-text">在线咨询</h3>
+            <form id="contactForm">
+              <div class="mb-4">
+                <label for="name" class="block text-text mb-2">姓名</label>
+                <input type="text" id="name" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-text focus:outline-none focus:border-secondary" placeholder="请输入您的姓名">
+              </div>
+              <div class="mb-4">
+                <label for="phone" class="block text-text mb-2">联系电话</label>
+                <input type="tel" id="phone" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-text focus:outline-none focus:border-secondary" placeholder="请输入您的联系电话">
+              </div>
+              <div class="mb-4">
+                <label for="email" class="block text-text mb-2">邮箱</label>
+                <input type="email" id="email" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-text focus:outline-none focus:border-secondary" placeholder="请输入您的邮箱">
+              </div>
+              <div class="mb-4">
+                <label for="demand" class="block text-text mb-2">需求类型</label>
+                <select id="demand" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-text focus:outline-none focus:border-secondary">
+                  <option value="">请选择需求类型</option>
+                  <option value="compliance">合规检测咨询（平台规则/案例库）</option>
+                  <option value="asr">ASR/OCR转写识别咨询</option>
+                  <option value="script">剧本优化分析咨询</option>
+                  <option value="cooperation">企业定制/批量检测合作</option>
+                  <option value="other">其他问题</option>
+                </select>
+              </div>
+              <div class="mb-6">
+                <label for="message" class="block text-text mb-2">留言内容</label>
+                <textarea id="message" rows="4" class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-text focus:outline-none focus:border-secondary" placeholder="请详细描述您的需求或问题（如需要定制平台规则、扩充案例库等）"></textarea>
+              </div>
+              <button type="submit" class="w-full bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-lg transition-all hover-glow">
+                提交留言
+              </button>
+            </form>
+          </div>
 
-        if (doCompliance) {
-          result += "【🛡️ 合规检测】\n";
-          result += "- ⚠️ 风险：低俗暗示语言（抖音中危）\n";
-          result += "- 💡 建议：“欲罢不能” → “令人着迷”更安全\n\n";
-        }
+          <div class="flex flex-col justify-between">
+            <div>
+              <h3 class="text-2xl font-bold mb-6 text-text">联系方式</h3>
+              <div class="space-y-6 mb-8">
+                <div class="flex items-start">
+                  <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-phone text-secondary text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-text mb-1">咨询电话</h4>
+                    <p class="text-textLight">400-888-9999</p>
+                    <p class="text-gray-500 text-sm">工作时间：9:00-21:00（7天无休）</p>
+                  </div>
+                </div>
 
-        if (doScript) {
-          result += "【🎬 剧本分析】\n";
-          result += "- 主线：女主复仇逆袭为主线\n";
-          result += "- 推荐集数：24集 × 90秒\n";
-          result += "- 第1集结尾钩子：“三年后见”短信悬念\n\n";
-        }
+                <div class="flex items-start">
+                  <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-envelope text-secondary text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-text mb-1">企业邮箱</h4>
+                    <p class="text-textLight">contact@leidun.tech</p>
+                    <p class="text-gray-500 text-sm">24小时内回复邮件</p>
+                  </div>
+                </div>
 
-        result += "📌 提示：真实版本将调用通义千问大模型进行深度分析。";
-        reportOutput.textContent = result;
-      }, 1500);
-    });
-  </script>
-</body>
-</html>
+                <div class="flex items-start">
+                  <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fa-solid fa-location-dot text-secondary text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-text mb-1">办公地址</h4>
+                    <p class="text-textLight">浙江杭州西湖区互联网产业园A座</p>
+                    <p class="text-textLight">河南郑州郑东新区智慧岛B区</p>
+                    <p class="text-textLight">辽宁沈阳浑南区数字经济产业园C栋</p>
+                    <p class="text-textLight">越南河内市纸桥郡科技园区D区</p>
+                  </div>
+                </div>
+              </div>
+
+              <h3 class="text-2xl font-bold mb-6 text-text">关注我们</h3>
+              <div class="flex space-x-4 mb-8">
+                <a href="#" class="w-12 h-12 bg-dark border border-gray-300 rounded-full flex items-center justify-center hover:border-secondary hover:text-secondary transition-all">
+                  <i class="fa-brands fa-weixin text-xl"></i>
+                </a>
+                <a href="#" class="w-12 h-12 bg-dark border border-gray-300 rounded-full flex items-center justify-center hover:border-secondary hover:text-secondary transition-all">
+                  <i class="fa-brands fa-weibo text-xl"></i>
+                </a>
+                <a href="#" class="w-12 h-12 bg-dark border border-gray-300 rounded-full flex items-center justify-center hover:border-secondary hover:text-secondary transition-all">
+                  <i class="fa-brands fa-zhihu text-xl"></i>
+                </a>
+                <a href="#" class="w-12 h-12 bg-dark border border-gray-300 rounded-full flex items-center justify-center hover:border-secondary hover:text-secondary transition-all">
+                  <i class="fa-brands fa-bilibili text-xl"></i>
+                </a>
+              </div>
+            </div>
+
+            <div class="bg-dark rounded-xl p-6 border border-gray-200">
+              <h4 class="font-semibold text-text mb-3">常见问题</h4>
+              <div class="space-y-3">
+                <a href="#" class="flex items-center text-textLight hover:text-secondary transition-colors">
+                  <i class="fa-solid fa-chevron-right mr-2 text-sm"></i>
+                  <span>支持哪些平台的合规检测？规则会实时更新吗？</span>
+                </a>
+                <a href="#" class="flex items-center text-textLight hover:text-secondary transition-colors">
+                  <i class="fa-solid fa-chevron-right mr-2 text-sm"></i>
+                  <span>违规案例库的案例来源是什么？会持续扩充吗？</span>
+                </a>
+                <a href="#" class="flex items-center text-textLight hover:text-secondary transition-colors">
+                  <i class="fa-solid fa-chevron-right mr-2 text-sm"></i>
+                  <span>剧本分析支持自定义剧集时长吗？</span>
+                </a>
+                <a href="#" class="flex items-center text-textLight hover:text-secondary transition-colors">
+                  <i class="fa-solid fa-chevron-right mr-2 text-sm"></i>
+                  <span>如何申请企业定制服务（如新增平台规则）？</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark py-12 border-t border-gray-200">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+              <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+            </div>
+            <span class="text-xl font-bold text-text">雷盾 <span class="text-secondary">AI</span></span>
+          </div>
+          <p class="text-textLight mb-4">
+            基于国内主流大模型，结合5大平台规则库、2000+违规短剧案例、广电下架短剧数据，为创作者提供合规检测与剧本优化工具。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-textLight hover:text-secondary transition-colors">
+              <i class="fa-brands fa-weixin text-xl"></i>
+            </a>
+            <a href="#" class="text-textLight hover:text-secondary transition-colors">
+              <i class="fa-brands fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-textLight hover:text-secondary transition-colors">
+              <i class="fa-brands fa-zhihu text-xl"></i>
+            </a>
+            <a href="#" class="text-textLight hover:text-secondary transition-colors">
+              <i class="fa-brands fa-bilibili text-xl"></i>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold mb-4 text-text">产品服务</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">多平台合规检测</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">ASR/OCR转写识别</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">剧本结构化分析</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">广电下架短剧对比</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">企业定制服务</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-semibold mb-4 text-text">帮助中心</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">使用教程</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">常见问题</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">会员权益</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">发票申请</a></li>
+            <li><a href="#" class="text-textLight hover:text-secondary transition-colors">隐私政策</a></li>
+          </ul>
+        </div>

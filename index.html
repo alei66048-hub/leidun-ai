@@ -81,15 +81,20 @@
           <span class="text-xl font-bold text-text">识危守正</span>
         </a>
 
-        <!-- 桌面端导航 -->
+        <!-- 桌面端导航 - 替换“立即购买”为“免费注册”和“登录” -->
         <nav class="hidden md:flex space-x-8">
           <a href="#home" class="text-textLight hover:text-secondary transition-colors">首页</a>
           <a href="#product" class="text-textLight hover:text-secondary transition-colors">产品服务</a>
           <a href="#expert" class="text-textLight hover:text-secondary transition-colors">专家服务</a>
           <a href="#about" class="text-textLight hover:text-secondary transition-colors">关于我们</a>
           <a href="#contact" class="text-textLight hover:text-secondary transition-colors">联系我们</a>
-          <a href="#pricing" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-all hover-glow">
-            立即购买
+          <!-- 新增：登录按钮（透明边框） -->
+          <a href="#login" class="border border-secondary text-secondary hover:bg-secondary hover:text-white px-4 py-2 rounded-lg transition-all">
+            登录
+          </a>
+          <!-- 新增：免费注册按钮（实心背景） -->
+          <a href="#register" class="bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg transition-all hover-glow">
+            免费注册
           </a>
         </nav>
 
@@ -100,7 +105,7 @@
       </div>
     </div>
 
-    <!-- 移动端导航菜单 -->
+    <!-- 移动端导航菜单 - 同步更新按钮 -->
     <div id="mobileMenu" class="md:hidden hidden bg-white border-b border-gray-200">
       <div class="container mx-auto px-4 py-3 space-y-3">
         <a href="#home" class="block text-textLight hover:text-secondary py-2">首页</a>
@@ -108,21 +113,24 @@
         <a href="#expert" class="block text-textLight hover:text-secondary py-2">专家服务</a>
         <a href="#about" class="block text-textLight hover:text-secondary py-2">关于我们</a>
         <a href="#contact" class="block text-textLight hover:text-secondary py-2">联系我们</a>
-        <a href="#pricing" class="block bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg text-center hover-glow">
-          立即购买
+        <a href="#login" class="block border border-secondary text-secondary hover:bg-secondary hover:text-white px-4 py-2 rounded-lg text-center transition-all">
+          登录
+        </a>
+        <a href="#register" class="block bg-secondary hover:bg-secondary/90 text-white px-4 py-2 rounded-lg text-center hover-glow">
+          免费注册
         </a>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- 首页横幅 -->
+    <!-- 首页横幅 - 修改标题文案 -->
     <section id="home" class="pt-32 pb-20 md:pt-40 md:pb-28">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row items-center">
           <div class="md:w-1/2 mb-10 md:mb-0">
             <h1 class="text-[clamp(2rem,5vw,3.2rem)] font-bold leading-tight mb-6 text-text">
-              <span class="title-nowrap">识危于未然，守正于创作</span>
+              <span class="title-nowrap">识危于未形，守正于无形</span>
               <br>
               <span class="bg-gradient-to-r from-secondary to-accent text-gradient">AI+专家 双轨内容安全解决方案</span>
             </h1>
@@ -220,12 +228,12 @@
             </a>
           </div>
 
-          <!-- 服务卡片2：剧本智能优化（优化名称+图标+对齐） -->
+          <!-- 服务卡片2：剧本智能优化 -->
           <div class="bg-white rounded-xl p-6 border border-gray-200 hover:border-secondary transition-all hover-glow shadow-sm">
             <div class="w-14 h-14 bg-secondary/10 rounded-lg flex items-center justify-center mb-6">
-              <i class="fa-solid fa-brain text-secondary text-2xl"></i> <!-- 新增图标，与首页模块图标呼应 -->
+              <i class="fa-solid fa-brain text-secondary text-2xl"></i>
             </div>
-            <h3 class="text-xl font-bold mb-3 text-text">剧本智能优化</h3> <!-- 名称修改 -->
+            <h3 class="text-xl font-bold mb-3 text-text">剧本智能优化</h3>
             <p class="text-textLight mb-4">基于AI算法自动拆解剧本主线副线，梳理时间线与冲突节点，智能推荐集数与单集时长，每集配套钩子设计与结构优化建议。</p>
             <ul class="space-y-2 mb-6">
               <li class="flex items-center text-text">
@@ -245,7 +253,7 @@
               </li>
             </ul>
             <a href="#detect" class="text-secondary hover:text-secondary/80 font-medium flex items-center">
-              立即优化 <i class="fa-solid fa-arrow-right ml-2"></i> <!-- 按钮文字同步优化 -->
+              立即优化 <i class="fa-solid fa-arrow-right ml-2"></i>
             </a>
           </div>
         </div>
@@ -315,9 +323,9 @@
             </div>
           </div>
 
-          <!-- 步骤1：上传文件（新增3个服务选项框） -->
+          <!-- 步骤1：上传文件（含服务选择选项框） -->
           <div id="uploadStep" class="step-content">
-            <!-- 新增：服务选择选项框 -->
+            <!-- 服务选择选项框 -->
             <div class="mb-8">
               <h3 class="text-lg font-semibold mb-4 text-text">选择所需服务（可多选）</h3>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -974,5 +982,6 @@
                   </div>
                   <div>
                     <h4 class="font-semibold text-text mb-1">办公地址</h4>
-                    <p class="text-textLight">浙江杭州西湖区东部软件园</p>
-                    <p class="text-textLight">河南郑州市南龙湖大学城
+                    <p class="text-textLight">浙江杭州西湖区互联网产业园A座</p>
+                    <p class="text-textLight">河南郑州郑东新区智慧岛B区</p>
+                    <p class
